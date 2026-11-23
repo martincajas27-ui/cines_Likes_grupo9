@@ -33,8 +33,13 @@ public class VentanaCineLikes extends JFrame {
     private JButton btnMeGusta;
     private JButton btnEliminarPelicula;
 
+    private JPanel panelTab3;
+    private JButton btnActualizarRanking;
+    private JList<String> listaRankingTab3;
+
     private final CatalogoPeliculas catalogo;
     private final DefaultListModel<String> modeloListaTab1;
+    private final DefaultListModel<String> modeloListaTab3;
     private int codigoSeleccionado = -1;
     private String ultimaConsultaTexto = null;
 
@@ -47,13 +52,16 @@ public class VentanaCineLikes extends JFrame {
 
         catalogo = new CatalogoPeliculas();
         modeloListaTab1 = new DefaultListModel<>();
+        modeloListaTab3 = new DefaultListModel<>();
         listaPeliculasTab1.setModel(modeloListaTab1);
+        listaRankingTab3.setModel(modeloListaTab3);
 
         cargarGeneros(cmbRegGenero);
         cargarGeneros(cmbEditGenero);
 
         catalogo.cargarVeintePeliculas();
         refrescarVistaTab1();
+        refrescarVistaTab3();
         limpiarSeleccionEdicion();
 
         btnRegistrar.addActionListener(e -> registrarPelicula());
@@ -62,6 +70,13 @@ public class VentanaCineLikes extends JFrame {
         btnGuardarCambios.addActionListener(e -> guardarEdicion());
         btnMeGusta.addActionListener(e -> darMeGustaSeleccionada());
         btnEliminarPelicula.addActionListener(e -> eliminarSeleccionada());
+        btnActualizarRanking.addActionListener(e -> refrescarVistaTab3());
+
+        tabbedPanePrincipal.addChangeListener(e -> {
+            if (tabbedPanePrincipal.getSelectedIndex() == 2) {
+                refrescarVistaTab3();
+            }
+        });
     }
 
     private void cargarGeneros(JComboBox<String> combo) {
@@ -77,6 +92,14 @@ public class VentanaCineLikes extends JFrame {
             modeloListaTab1.addElement(p.toString());
         }
         lblTotalPeliculas.setText("Total de películas registradas: " + catalogo.getCantidadPeliculas());
+    }
+
+    private void refrescarVistaTab3() {
+        modeloListaTab3.clear();
+        ArrayList<Pelicula> ranking = catalogo.obtenerRankingPorMeGusta();
+        for (Pelicula p : ranking) {
+            modeloListaTab3.addElement(p.toRankingString());
+        }
     }
 
     private void registrarPelicula() {
@@ -97,6 +120,7 @@ public class VentanaCineLikes extends JFrame {
             catalogo.registrarPelicula(codigo, titulo, director, genero, anio);
 
             refrescarVistaTab1();
+            refrescarVistaTab3();
             if (ultimaConsultaTexto != null) {
                 recalcularBusquedaTextoActiva();
             }
@@ -228,6 +252,7 @@ public class VentanaCineLikes extends JFrame {
             catalogo.editarPelicula(codigoSeleccionado, nuevoTitulo, nuevoDirector, nuevoGenero, nuevoAnio);
 
             refrescarVistaTab1();
+            refrescarVistaTab3();
             recalcularBusquedaTextoActiva();
             JOptionPane.showMessageDialog(this, "Datos de la película actualizados correctamente.", "Actualización exitosa", JOptionPane.INFORMATION_MESSAGE);
 
@@ -247,6 +272,7 @@ public class VentanaCineLikes extends JFrame {
             int nuevosLikes = catalogo.darMeGusta(codigoSeleccionado);
             lblLikesActuales.setText("Me gusta: " + nuevosLikes);
             refrescarVistaTab1();
+            refrescarVistaTab3();
             recalcularBusquedaTextoActiva();
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -269,6 +295,7 @@ public class VentanaCineLikes extends JFrame {
             if (eliminada) {
                 limpiarSeleccionEdicion();
                 refrescarVistaTab1();
+                refrescarVistaTab3();
                 recalcularBusquedaTextoActiva();
                 JOptionPane.showMessageDialog(this, "Película eliminada del catálogo.", "Eliminada", JOptionPane.INFORMATION_MESSAGE);
             }

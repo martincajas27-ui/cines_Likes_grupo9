@@ -184,4 +184,18 @@ public class CatalogoPeliculas {
         p.incrementarMeGusta();
         return p.getMeGusta();
     }
+
+    public ArrayList<Pelicula> obtenerRankingPorMeGusta() {
+        ArrayList<Pelicula> ranking = new ArrayList<>(listaPeliculas);
+        for (int i = 1; i < ranking.size(); i++) {
+            Pelicula actual = ranking.get(i);
+            int j = i - 1;
+            while (j >= 0 && ranking.get(j).getMeGusta() < actual.getMeGusta()) {
+                ranking.set(j + 1, ranking.get(j));
+                j--;
+            }
+            ranking.set(j + 1, actual);
+        }
+        return ranking;
+    }
 }
