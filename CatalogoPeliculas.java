@@ -138,4 +138,50 @@ public class CatalogoPeliculas {
         listaPeliculas.add(nueva);
         ordenarPorNumeroDescendente();
     }
+
+    public ArrayList<Pelicula> buscarCoincidenciaTexto(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException("Ingrese un texto válido (no vacío ni solo espacios).");
+        }
+        ArrayList<Pelicula> resultado = new ArrayList<>();
+        for (Pelicula p : listaPeliculas) {
+            if (p.getTitulo().contains(texto) || p.getDirector().contains(texto)) {
+                resultado.add(p);
+            }
+        }
+        return resultado;
+    }
+
+    public void editarPelicula(int numeroID, String nuevoTitulo, String nuevoDirector, String nuevoGenero, int nuevoAnio) {
+        int indice = buscarBinariaPorNumero(numeroID);
+        if (indice == -1) {
+            throw new IllegalArgumentException("No se encontró ninguna película con el código " + numeroID + ".");
+        }
+        validarDatos(numeroID, nuevoTitulo, nuevoDirector, nuevoGenero, nuevoAnio, false);
+
+        Pelicula p = listaPeliculas.get(indice);
+        p.setTitulo(nuevoTitulo.trim());
+        p.setDirector(nuevoDirector.trim());
+        p.setGenero(nuevoGenero);
+        p.setAnio(nuevoAnio);
+    }
+
+    public boolean eliminarPelicula(int numeroID) {
+        int indice = buscarBinariaPorNumero(numeroID);
+        if (indice == -1) {
+            return false;
+        }
+        listaPeliculas.remove(indice);
+        return true;
+    }
+
+    public int darMeGusta(int numeroID) {
+        int indice = buscarBinariaPorNumero(numeroID);
+        if (indice == -1) {
+            throw new IllegalArgumentException("Busque y seleccione una película válida antes de dar Me gusta.");
+        }
+        Pelicula p = listaPeliculas.get(indice);
+        p.incrementarMeGusta();
+        return p.getMeGusta();
+    }
 }
